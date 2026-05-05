@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StarlinkEnterprise.ApiClient/StarlinkEnterprise.ApiClient.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StarlinkEnterprise.ApiClient.Tests/StarlinkEnterprise.ApiClient.Tests.csproj" />
+  </Folder>
+</Solution>

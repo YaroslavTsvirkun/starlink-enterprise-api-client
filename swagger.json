@@ -1,0 +1,5696 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Starlink Enterprise API",
+    "description": "<h3>Description</h3>API to manage Starlink accounts and devices. For interactive endpoints list see: <a href='https://starlink.readme.io/'>https://starlink.readme.io/</a><h3>Authentication - OIDC</h3><p>To authenticate with this API using OIDC, <a target='_blank' href='/api/auth/.well-known/openid-configuration'>Well Known URL</a> and attach the result to your requests with the <strong>Authorize</strong> button below.</p>",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/public/v1/accounts": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get accounts",
+        "description": "Get paginated accounts of the current authenticated user.",
+        "parameters": [
+          {
+            "name": "regionCode",
+            "in": "query",
+            "description": "The region code of the account",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of accounts to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The index of the page, starting at 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving accounts for this user"
+          },
+          "422": {
+            "description": "Failed to retrieve accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/accounts/{accountNumber}/update-default-router-config": {
+      "put": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Set default router config",
+        "description": "Set the default router config on the account. Use an empty string to remove the default\nconfig from the account. Any new routers on this account will be assigned this config.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "UpdateDefaultConfigRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDefaultConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated default config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. The user must have API access and be on the account."
+          },
+          "422": {
+            "description": "Failed to assign the config. The config may not be on the account."
+          }
+        }
+      }
+    },
+    "/public/v1/accounts/{accountNumber}/router-local-content": {
+      "post": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Upload router local content file.",
+        "description": "Upload html file to allow it to be configured as the HTTPS server local content file for router configs.\nFile should be attached as multipart/form-data.\nSee https://starlink.readme.io/docs/local-content for example upload script.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "File"
+                ],
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "File": {
+                  "style": "form"
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "required": [
+                  "File"
+                ],
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded file successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. The user must have API access and be on the account."
+          },
+          "422": {
+            "description": "Failed to upload file. File must have type text/html, filename name max 100 characters, and size under 4MB."
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get list of router local content files",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterLocalContentResponseV1ListServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. The user must have API access and be on the account."
+          },
+          "422": {
+            "description": "Error getting list of router local content files."
+          }
+        }
+      }
+    },
+    "/public/v1/accounts/{accountNumber}/billing-cycles/query": {
+      "post": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get data usage",
+        "description": "Retrieve the real-time data tracking system for an account's data usage data.\nFor detailed instructions, please refer to the API documentation: https://starlink.readme.io/docs/data-usage-api",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "QueryBillingCycleRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryBillingCycleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineDataUsageForBillingCyclesPaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/addresses": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Get all addresses",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "addressIds",
+            "in": "query",
+            "description": "Filter by a specific set of Address Reference IDs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "metadata",
+            "in": "query",
+            "description": "Filter by metadata",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of addresses to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The index of the page, starting at 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Addresses retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from getting addresses for this account"
+          },
+          "422": {
+            "description": "Failed to retrieve addresses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Create address",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "AddressCreateRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from creating an address for this account"
+          },
+          "422": {
+            "description": "Failed to create the address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Update address",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "AddressUpdateRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from updating this address"
+          },
+          "422": {
+            "description": "Failed to update the address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/addresses/{addressReferenceId}": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Get address",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "addressReferenceId",
+            "in": "path",
+            "description": "Address reference ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "55ec6574-10d8-bd9c-1951-d4184f4ae467"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from getting the address for this account"
+          },
+          "422": {
+            "description": "Failed to get the address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressResponseServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/addresses/check-capacity": {
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Check capacity",
+        "description": "Check Starlink network capacity at a specific coordinate.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "CapacityCheckRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapacityCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Received service capacity at these coordinates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapacityCheckResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from checking capacity for this account"
+          },
+          "422": {
+            "description": "Failed to check capacity for this address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapacityCheckResponseServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/{routerId}": {
+      "get": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Get router",
+        "description": "Required permission: Device command and configuration, View.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "routerId",
+            "in": "path",
+            "description": "Router Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "010000000000000000012345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RouterResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/{routerId}/config": {
+      "delete": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Remove config assignment",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Remove the config assignment on the router. The config itself will still exist. The router will no longer\nget its config from the cloud, and its config may be changed in the Starlink app or via factory reset.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "routerId",
+            "in": "path",
+            "description": "Router Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "010000000000000000012345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router or config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Set config assignment",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Assign the config to the router. If the router is currently online, the config will immediately be sent to the router.\nElse, the config will be sent to the router when it comes online. Configs are sent to the router within 1-2 minutes.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "routerId",
+            "in": "path",
+            "description": "Router Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "010000000000000000012345"
+          }
+        ],
+        "requestBody": {
+          "description": "Config Id",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "example": "DVC_CFG-12341234"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account, router, or config."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/batch-config": {
+      "put": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Batch config assignment",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Assign the config (or none) to the routers. For each router if it is currently online, the config will immediately be sent to the router.\nElse, the config will be sent to the router when it comes online. Configs are sent to the router within 1-2 minutes. On error no assignment occurs.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "Request containing config id (or empty) and list of deviceId's to assign to",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBatchDeviceConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or a router or config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/configs": {
+      "get": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Get all router configs",
+        "description": "Required permission: Device command and configuration, View.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page to get",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated RouterConfigResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, you probably don't have access to this account"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Create router config",
+        "description": "Required permission: Device command and configuration, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router config",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "RouterConfigRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouterConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router or config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/configs/{configId}": {
+      "get": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Get router config",
+        "description": "Required permission: Device command and configuration, View.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router config",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "configId",
+            "in": "path",
+            "description": "Config Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "DVC_CFG-12341234"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RouterConfigResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Update router config",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Update a given router config. Any router assigned to this config will immediately receive the update if they are online.\nOtherwise, the router will receive the update when it comes online.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router config",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "configId",
+            "in": "path",
+            "description": "Config Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "DVC_CFG-12341234"
+          }
+        ],
+        "requestBody": {
+          "description": "RouterConfigRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouterConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "RouterConfigResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouterConfigResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router or config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/sandbox/clients": {
+      "get": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Get sandbox clients",
+        "description": "Returns clients that were unsandboxed through the management API and have access that\nhas not yet expired. Clients that are allowed internet access due to sandbox disablement\nare not returned.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "sandboxId",
+            "in": "query",
+            "description": "Sandbox Id",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 123
+          },
+          {
+            "name": "expiryAfter",
+            "in": "query",
+            "description": "Include clients whose access expires after this time",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2020-01-01T01:00:00+00:00"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page to get",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of sandbox clients to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable, the request contents are invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Batch update sandbox clients",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Update the sandbox state for multiple clients. If sandboxing is enabled, sandboxed clients will only have access\nto domains in the sandbox domain allow list.\nIf a client is duplicated, records the client with the latest expiry.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "UpdateSandboxClientRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UpdateBatchSandboxClientRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable, the request contents are invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/sandbox/heartbeat": {
+      "put": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Update sandbox heartbeat",
+        "description": "Heartbeats verify the health of enterprise systems that manage router sandboxing.\nIf heartbeats are not received for an account, Starlink API will instruct routers\nunder the account disable sandboxes until reboot.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "SandboxHeartbeatRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SandboxHeartbeatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router"
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/sandbox/{sandboxId}": {
+      "put": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Update sandbox",
+        "description": "Enable or disable a client sandbox. This applies to all router configs the sandbox ID is present in.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "sandboxId",
+            "in": "path",
+            "description": "Sandbox Id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 123
+          }
+        ],
+        "requestBody": {
+          "description": "UpdateSandboxRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSandboxRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSandboxResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable, the request contents are invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSandboxResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or the router"
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/routers/{routerId}/reboot": {
+      "post": {
+        "tags": [
+          "Router"
+        ],
+        "summary": "Reboot router",
+        "description": "Required permission: Device command and configuration, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of router",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "routerId",
+            "in": "path",
+            "description": "Router Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "010000000000000000012345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable, router not on account or reboot failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, you don't have access to the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}": {
+      "get": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Get service line",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service line retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving the service line for this account"
+          },
+          "422": {
+            "description": "Failed to retrieve the service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Deactivate a service line",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          },
+          {
+            "name": "reasonForCancellation",
+            "in": "query",
+            "description": "Optional reason for cancelling this service line",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endNow",
+            "in": "query",
+            "description": "If service should end now, or on next bill day. Default is false",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deactivated the service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from deactivating the service line for this account"
+          },
+          "422": {
+            "description": "Failed to deactivate the service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines": {
+      "get": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Get all service lines",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "addressReferenceId",
+            "in": "query",
+            "description": "Filter by an Address Reference ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "55ec6574-10d8-bd9c-1951-d4184f4ae467"
+          },
+          {
+            "name": "searchString",
+            "in": "query",
+            "description": "Filter by fuzzy match of nickname, or exact match on UT ID, UT nickname, UT serial number, or service line number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of service lines to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The index of the page, starting at 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "orderByCreatedDateDescending",
+            "in": "query",
+            "description": "Sort the paginated results by created date",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service lines retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving service lines for this account"
+          },
+          "422": {
+            "description": "Failed to retrieve service lines",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Create service line",
+        "description": "Required permission: Service plan, Edit.<br/>Create a service line. This must be linked to an address and a subscription/product-ID.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "ServiceLineCreateRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceLineCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service line created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from creating service line in this account"
+          },
+          "422": {
+            "description": "Failed to create service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/recurring-data": {
+      "put": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Sets the recurring blocks on a service line if it is on a top-up plan.",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "The account number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "The service line number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request object.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRecurringDataBlocksRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/top-up-data": {
+      "post": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Adds a one-time top up data block to a service line if it is on a compatible plan.",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "The account number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "The service line number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request object.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicAddDataBlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/nickname": {
+      "put": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Update nickname",
+        "description": "Required permission: Device management, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "requestBody": {
+          "description": "ServiceLineUpdateNicknameRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceLineUpdateNicknameRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/product/{productReferenceId}": {
+      "put": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Update product",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          },
+          {
+            "name": "productReferenceId",
+            "in": "path",
+            "description": "The unique reference id of the product to update to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "business-100"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Update product",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          },
+          {
+            "name": "productReferenceId",
+            "in": "path",
+            "description": "The unique reference id of the product to update to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "business-100"
+          }
+        ],
+        "requestBody": {
+          "description": "The recurring data blocks to set on the new product, if it on a compatible product. Leave null if otherwise.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRecurringDataBlocksRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceLineResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/public-ip": {
+      "put": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Set public IP",
+        "description": "Required permission: Service plan, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "requestBody": {
+          "description": "ServiceLineSetPublicIpRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceLineSetPublicIpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/billing-cycle/all": {
+      "get": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Get data usage",
+        "description": "Required permission: Device telemetry, View.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          },
+          {
+            "name": "includeUnknownDataBin",
+            "in": "query",
+            "description": "When true; unknown data bins will be included in results.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataUsageResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/billing-cycle/partial-periods": {
+      "get": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Get partial periods",
+        "description": "Required permission: Device telemetry, View.<br/>Get the previous partial periods for this service line. For more information about this endpoint, see https://starlink.readme.io/docs/understanding-proration.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartialPeriodResponseIEnumerableServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/opt-in": {
+      "post": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Opt in",
+        "description": "Required permission: Service plan, Edit.<br/>Opt in the service line to continue using priority data after reaching the plan capacity.\nOnly applies to some products.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptInPeriodResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving the subscription for this account"
+          },
+          "422": {
+            "description": "Failed to retrieve subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptInPeriodResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/{serviceLineNumber}/opt-out": {
+      "delete": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Opt out",
+        "description": "Required permission: Service plan, Edit.<br/>Opt out the service line. If the service line reaches the plan capacity, it will switch to using standard data.\nOnly applies to some products.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptInPeriodResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving the subscription for this account"
+          },
+          "422": {
+            "description": "Failed to retrieve subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptInPeriodResponseServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/service-lines/available-products": {
+      "get": {
+        "tags": [
+          "ServiceLine"
+        ],
+        "summary": "Get available products",
+        "description": "Required permission: Service plan, View.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of subscriptions to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The index of the page, starting at 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "Subscription products retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionProductResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionProductResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Failed to retrieve subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionProductResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving subscriptions for this account"
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/user-terminals": {
+      "get": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Get all user terminals",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "serviceLineNumbers",
+            "in": "query",
+            "description": "Filter by a set of service line numbers",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "userTerminalIds",
+            "in": "query",
+            "description": "Filter by a set of user terminal IDs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "hasServiceLine",
+            "in": "query",
+            "description": "Filter by user terminals with or without a services lines. Omitting this will return both sets",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "description": "only return UTs that are active on this account",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "searchString",
+            "in": "query",
+            "description": "Filter by partial match of UT ID, serial number, or kit serial number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of user terminals to return at a time",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The index of the page, starting at 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User terminals retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTerminalResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from retrieving user terminals"
+          },
+          "422": {
+            "description": "Failed to retrieve user terminals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTerminalResponsePaginatedServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/user-terminals/{deviceId}": {
+      "post": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Add to account",
+        "description": "Required permission: Service plan, Edit.<br/>Add a user terminal to an account. This will add the user terminal to the account, but won't start service.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "UTID, kit serial number, or dish serial number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345678-12345678-12345678"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User terminal added to account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from adding the user terminal to account"
+          },
+          "422": {
+            "description": "Failed to add the user terminal to the account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Remove from account",
+        "description": "Required permission: Service plan, Edit.<br/>Remove a user terminal from the account.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of user terminal",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "UTID, kit serial number, or dish serial number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345678-12345678-12345678"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user_lacks_required_permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLacksRequiredPermissionServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/user-terminals/{userTerminalId}/{serviceLineNumber}": {
+      "post": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Add to service line",
+        "description": "Required permission: Service plan, Edit.<br/>Add a user terminal to a service line.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "userTerminalId",
+            "in": "path",
+            "description": "User terminal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345678-12345678-12345678"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User terminals added to service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from adding the user terminal to the service line"
+          },
+          "422": {
+            "description": "Failed to add the user terminal to the service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Remove from service line",
+        "description": "Required permission: Service plan, Edit.<br/>Remove a user terminal from a service line.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of service line",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "userTerminalId",
+            "in": "path",
+            "description": "User terminal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345678-12345678-12345678"
+          },
+          {
+            "name": "serviceLineNumber",
+            "in": "path",
+            "description": "Service line number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AST-511274-31364-54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed user terminal from service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden from removing user terminal from service line"
+          },
+          "422": {
+            "description": "Failed to remove user terminal from service line",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/user-terminals/{deviceId}/reboot": {
+      "post": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Reboot user terminal",
+        "description": "Required permission: Device command and configuration, Edit.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of user terminal",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "UTID, kit serial number, or dish serial number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345678-12345678-12345678"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, you don't have access to the account."
+          },
+          "422": {
+            "description": "Unprocessable, user terminal not on account or reboot failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/v1/account/{accountNumber}/user-terminals/batch-config": {
+      "put": {
+        "tags": [
+          "UserTerminal"
+        ],
+        "summary": "Batch config assignment",
+        "description": "Required permission: Device command and configuration, Edit.<br/>Assign the config (or none) to the user terminals. For each terminal if it is currently online, the config will immediately be\nsent. Else, the config will be sent when it comes online. On error no assignment occurs.",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "description": "Account number of user terminals",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "ACC-1234-1234-1234"
+          }
+        ],
+        "requestBody": {
+          "description": "Request containing config id (or empty) and list of deviceId's to assign to",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBatchDeviceConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, either you don't have access to the account or a terminal or config is not on the account."
+          },
+          "401": {
+            "description": "Users token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "token_expired"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountResponse": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "description": "The Account Number. Example: ACC-511274-31364-54"
+          },
+          "regionCode": {
+            "type": "string",
+            "description": "The region code of the account. Example: US"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "The name of the account",
+            "nullable": true
+          },
+          "defaultRouterConfigId": {
+            "type": "string",
+            "description": "Default router config on the account",
+            "nullable": true
+          },
+          "defaultRouterTlsDomain": {
+            "type": "string",
+            "description": "Deprecated field and functionality. Value will always be null",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/AccountResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressCreateRequest": {
+        "required": [
+          "addressLines",
+          "administrativeAreaCode",
+          "formattedAddress",
+          "latitude",
+          "longitude",
+          "regionCode"
+        ],
+        "type": "object",
+        "properties": {
+          "addressLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The address lines for the address. Example: 1 Rocket Road"
+          },
+          "locality": {
+            "type": "string",
+            "description": "The town/locality of the address. Example: Hawthorne",
+            "nullable": true
+          },
+          "administrativeArea": {
+            "type": "string",
+            "description": "The administrative area of the address. Example: California",
+            "nullable": true
+          },
+          "administrativeAreaCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The administrative area code of the address. Example: CA"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region of the address. Example: United States",
+            "nullable": true
+          },
+          "regionCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The region code of the address. Example: US"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the address. Example: 90250-6844",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Optional field that can be used to store information about the address for external purposes",
+            "nullable": true
+          },
+          "formattedAddress": {
+            "minLength": 1,
+            "type": "string",
+            "description": "A user readable address. Example: 1 Rocket Road, Hawthorne, CA 90250-6844, US"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The required latitude of the address. Example: 33.92",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The required longitude of the address. Example: -118.32",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressResponse": {
+        "type": "object",
+        "properties": {
+          "addressReferenceId": {
+            "type": "string",
+            "description": "Reference identifier for address. Example: 55ec6574-10d8-bd9c-1951-d4184f4ae467",
+            "format": "uuid"
+          },
+          "addressLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The address lines for the address. Example: 1 Rocket Road"
+          },
+          "locality": {
+            "type": "string",
+            "description": "The town/locality of the address. Example: Hawthorne",
+            "nullable": true
+          },
+          "administrativeArea": {
+            "type": "string",
+            "description": "The administrative area of the address. Example: California",
+            "nullable": true
+          },
+          "administrativeAreaCode": {
+            "type": "string",
+            "description": "The administrative area code of the address. Example: CA"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region of the address. Example: United States",
+            "nullable": true
+          },
+          "regionCode": {
+            "type": "string",
+            "description": "The region code of the address. Example: US"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the address. Example: 90250"
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Optional field that can be used to store information about the address for external purposes",
+            "nullable": true
+          },
+          "formattedAddress": {
+            "type": "string",
+            "description": "A user readable address. Example: 1 Rocket Road, Hawthorne, CA 90250-6844, US"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The latitude of the address: Example 33.92",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude of the address. Example: -118.32",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/AddressResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/AddressResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressUpdateRequest": {
+        "required": [
+          "addressLines",
+          "addressReferenceId",
+          "administrativeAreaCode",
+          "formattedAddress",
+          "latitude",
+          "longitude",
+          "regionCode"
+        ],
+        "type": "object",
+        "properties": {
+          "addressLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The address lines for the address. Example: 1 Rocket Road"
+          },
+          "locality": {
+            "type": "string",
+            "description": "The town/locality of the address. Example: Hawthorne",
+            "nullable": true
+          },
+          "administrativeArea": {
+            "type": "string",
+            "description": "The administrative area of the address. Example: California",
+            "nullable": true
+          },
+          "administrativeAreaCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The administrative area code of the address. Example: CA"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region of the address. Example: United States",
+            "nullable": true
+          },
+          "regionCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The region code of the address. Example: US"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the address. Example: 90250-6844",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Optional field that can be used to store information about the address for external purposes",
+            "nullable": true
+          },
+          "formattedAddress": {
+            "minLength": 1,
+            "type": "string",
+            "description": "A user readable address. Example: 1 Rocket Road, Hawthorne, CA 90250-6844, US"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "The required latitude of the address. Example: 33.92",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The required longitude of the address. Example: -118.32",
+            "format": "double"
+          },
+          "addressReferenceId": {
+            "type": "string",
+            "description": "Guid of the Address Reference Identifier for address. Example: 55ec6574-10d8-bd9c-1951-d4184f4ae467",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AviationMetadataResponse": {
+        "type": "object",
+        "properties": {
+          "tailNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "seatCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airlineIataCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "aircraftIataCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "airlineIcaoCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "aircraftIcaoCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "stcNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CapacityCheckRequest": {
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "The latitude of the address. Example: 33.92",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "The longitude of the address. Example: -118.32",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CapacityCheckResponse": {
+        "type": "object",
+        "properties": {
+          "availableCapacity": {
+            "type": "integer",
+            "description": "The amount of capacity remaining at location",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CapacityCheckResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/CapacityCheckResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataBlockMonthlyPublicResponse": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Start date of the respective month.",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date of the respective month.",
+            "format": "date-time"
+          },
+          "serviceLineUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockServiceLineUsagePublicResponse"
+            },
+            "description": "Montly usage breakdown by service lines."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataBlockServiceLineUsagePublicResponse": {
+        "type": "object",
+        "properties": {
+          "serviceLineNumber": {
+            "type": "string",
+            "description": "Service line number."
+          },
+          "consumedAmountGB": {
+            "type": "number",
+            "description": "GB amount that the service line consumed from the block.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataBlockSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "The block's product id.",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "description": "The block's start date.",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "The block's end date.",
+            "format": "date-time"
+          },
+          "count": {
+            "type": "integer",
+            "description": "How many blocks of this type there are.",
+            "format": "int32"
+          },
+          "dataAmount": {
+            "type": "number",
+            "description": "The data amount of each block.",
+            "format": "double"
+          },
+          "dataUnitType": {
+            "type": "string",
+            "description": "The unit that the data amount is in.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataBlockType": {
+        "enum": [
+          "IncludedWithBaseSubscription",
+          "RecurringPerBillingCycle",
+          "Overage",
+          "OneTimePurchase"
+        ],
+        "type": "string",
+        "x-enumNames": [
+          "IncludedWithBaseSubscription",
+          "RecurringPerBillingCycle",
+          "Overage",
+          "OneTimePurchase"
+        ]
+      },
+      "DataBlockUsagePublicResponse": {
+        "type": "object",
+        "properties": {
+          "dataBlockId": {
+            "type": "string",
+            "description": "Data block ID"
+          },
+          "startDateUtc": {
+            "type": "string",
+            "description": "UTC start date of the data block.",
+            "format": "date-time"
+          },
+          "expirationDateUtc": {
+            "type": "string",
+            "description": "UTC expiration date of the data block.",
+            "format": "date-time"
+          },
+          "totalAmountGB": {
+            "type": "number",
+            "description": "Total GB capacity, calculated by multiplying BlocksCount and PerBlockAmountGB.",
+            "format": "double"
+          },
+          "consumedAmountGB": {
+            "type": "number",
+            "description": "How much data has been used on the block.",
+            "format": "double"
+          },
+          "perBlockAmountGB": {
+            "type": "number",
+            "description": "GB capacity per individual block.",
+            "format": "double"
+          },
+          "dataBlockType": {
+            "$ref": "#/components/schemas/DataBlockType"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Product ID of the data block."
+          },
+          "blocksCount": {
+            "type": "integer",
+            "description": "Number of data blocks.",
+            "format": "int32"
+          },
+          "perBlockPrice": {
+            "type": "number",
+            "description": "Price per individual data block.",
+            "format": "double"
+          },
+          "totalPrice": {
+            "type": "number",
+            "description": "Total price, calculated by multiplying PerBlockPrice and BlocksCount.",
+            "format": "double",
+            "readOnly": true
+          },
+          "isoCurrencyCode": {
+            "type": "string",
+            "description": "Currency code for the price."
+          },
+          "serviceLineUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockServiceLineUsagePublicResponse"
+            },
+            "description": "Usage breakdown by service lines."
+          },
+          "monthlyUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockMonthlyPublicResponse"
+            },
+            "description": "Usage breakdown by month."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataBucketType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "type": "integer",
+        "format": "int32",
+        "x-enumNames": [
+          "Unknown",
+          "MobileRestricted",
+          "MobileUnrestricted",
+          "FixedRestricted",
+          "FixedUnrestricted",
+          "NonBillable",
+          "MobileDeprioritizedLimited",
+          "FixedDeprioritizedLimited",
+          "Residential",
+          "ResidentialLite",
+          "Roam"
+        ]
+      },
+      "DataOverageType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32",
+        "x-enumNames": [
+          "None",
+          "PriorityPerGb",
+          "DeprioritizedPerGb",
+          "LimitWithNoOverageData"
+        ]
+      },
+      "DataPoolUsagePublicResponse": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "description": "Account number that owns this data pool."
+          },
+          "dataPoolId": {
+            "type": "string",
+            "description": "Data pool ID."
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Timestamp when the data pool usage was last updated (UTC).",
+            "format": "date-time"
+          },
+          "dataBlocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockUsagePublicResponse"
+            },
+            "description": "Usage by data blocks in the pool."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataProductResponse": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "isoCurrencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "dataUnit": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataProductsResponse": {
+        "type": "object",
+        "properties": {
+          "topUpProduct": {
+            "$ref": "#/components/schemas/DataProductResponse"
+          },
+          "dataBlockProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataProductResponse"
+            },
+            "description": "The data block products that are available for this service plan.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataServicePlan": {
+        "required": [
+          "dataCategoryMapping",
+          "isMobilePlan",
+          "isOptedIntoOverage",
+          "productId",
+          "usageLimitGB"
+        ],
+        "type": "object",
+        "properties": {
+          "isoCurrencyCode": {
+            "type": "string",
+            "description": "ISO currency code for displaying prices (e.g., \"USD\", \"EUR\"). Null if no subscription exists.",
+            "nullable": true
+          },
+          "isMobilePlan": {
+            "type": "boolean",
+            "description": "Indicates if this is a mobile-type plan (mobility class is nomadic or mobile)."
+          },
+          "activeFrom": {
+            "type": "string",
+            "description": "Date when data usage tracking began for this product (UTC). May differ from subscription start date.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subscriptionActiveFrom": {
+            "type": "string",
+            "description": "Date when the service line's subscription started (UTC).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subscriptionEndDate": {
+            "type": "string",
+            "description": "Date when the subscription ended (UTC). Null for active subscriptions.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "overageName": {
+            "type": "string",
+            "description": "Display name for the overage product shown in opt-in/out interfaces. Empty string if no overage product exists."
+          },
+          "overageDescription": {
+            "type": "string",
+            "description": "Description of the overage product shown in opt-in/out interfaces. Empty string if no overage product exists."
+          },
+          "isOptedIntoOverage": {
+            "type": "boolean",
+            "description": "Indicates whether the service line is currently opted into overage for metered plans."
+          },
+          "overageLineDeactivatedDate": {
+            "type": "string",
+            "description": "Most recent date and time when overage opt-in was disabled (UTC). Null if never disabled or currently opted in.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "overageLine": {
+            "$ref": "#/components/schemas/DataUsageOverageLine"
+          },
+          "dataPoolUsage": {
+            "$ref": "#/components/schemas/DataPoolUsagePublicResponse"
+          },
+          "productId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Product ID identifying the current subscription plan. Empty string if no subscription exists."
+          },
+          "usageLimitGB": {
+            "type": "number",
+            "description": "Usage limit in GB for this plan. For metered plans, this is the priority data limit. For Priority data plans, this is the total data pool capacity.",
+            "format": "double"
+          },
+          "dataCategoryMapping": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DataBucketType"
+            },
+            "description": "Deprecated. Value will always be empty dictionary."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageBillingCycle": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageBin"
+            },
+            "nullable": true
+          },
+          "dailyDataUsages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageDaily"
+            },
+            "nullable": true
+          },
+          "overageLines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageOverageLine"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageBillingCycleV2": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Start date of the billing cycle.",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date of the billing cycle.",
+            "format": "date-time"
+          },
+          "dailyDataUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageDailyV2"
+            },
+            "description": "Daily data usage breakdown for each day in the billing cycle. Omits days with no recorded usage."
+          },
+          "overageLines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageOverageLine"
+            },
+            "description": "Overage lines for metered plans showing usage beyond plan limits. Empty for plans without overage or cycles with no overage. May contain multiple lines if subscription changed mid-cycle."
+          },
+          "dataPoolUsage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataPoolUsagePublicResponse"
+            },
+            "description": "Data pool usage information for Priority data plans. Empty for metered plans or if no data pools are attached."
+          },
+          "totalPriorityGB": {
+            "type": "number",
+            "description": "Total priority data consumed in this billing cycle (GB), rounded to 2 decimal places. Includes opt-in priority data.",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalStandardGB": {
+            "type": "number",
+            "description": "Total standard data consumed in this billing cycle (GB), rounded to 2 decimal places.",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalOptInPriorityGB": {
+            "type": "number",
+            "description": "Total priority data consumed while opted into overage in this billing cycle (GB), rounded to 2 decimal places. This is a subset of TotalPriorityGB.",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalNonBillableGB": {
+            "type": "number",
+            "description": "Total non-billable data consumed in this billing cycle (GB), rounded to 2 decimal places.",
+            "format": "double",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageBin": {
+        "type": "object",
+        "properties": {
+          "dataBucket": {
+            "$ref": "#/components/schemas/DataBucketType"
+          },
+          "totalGB": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageDaily": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataUsageBins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageBin"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageDailyV2": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date of usage (UTC).",
+            "format": "date-time"
+          },
+          "priorityGB": {
+            "type": "number",
+            "description": "Total priority (unrestricted, high-speed) data consumed on this day in GB. Includes opt-in priority data.",
+            "format": "double"
+          },
+          "optInPriorityGB": {
+            "type": "number",
+            "description": "Portion of priority data consumed while opted into overage on this day in GB. This is a subset of PriorityGB, not additive.",
+            "format": "double"
+          },
+          "standardGB": {
+            "type": "number",
+            "description": "Standard (deprioritized) data consumed on this day in GB.",
+            "format": "double"
+          },
+          "nonBillableGB": {
+            "type": "number",
+            "description": "Non-billable data consumed on this day in GB.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageOverageLine": {
+        "type": "object",
+        "properties": {
+          "restricted": {
+            "$ref": "#/components/schemas/DataBucketType"
+          },
+          "unrestricted": {
+            "$ref": "#/components/schemas/DataBucketType"
+          },
+          "pricePerGB": {
+            "type": "number",
+            "description": "Price per GB for overage consumption (e.g., 1.00 for $1.00/GB).",
+            "format": "double"
+          },
+          "usageLimitGB": {
+            "type": "number",
+            "description": "Plan's included priority data limit in GB before overage charges apply. Zero for plans that are restricted by default.",
+            "format": "double"
+          },
+          "overageAmountGB": {
+            "type": "number",
+            "description": "Amount of priority data consumed beyond the usage limit while opted into overage, in GB. Only opt-in priority data counts toward overage.",
+            "format": "double"
+          },
+          "consumedAmountGB": {
+            "type": "number",
+            "description": "Amount of priority data consumed up to the usage limit, in GB.",
+            "format": "double"
+          },
+          "overagePrice": {
+            "type": "number",
+            "description": "Total overage cost before taxes and fees.",
+            "format": "double"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Product ID for the overage product."
+          },
+          "dataOverageType": {
+            "$ref": "#/components/schemas/DataOverageType"
+          },
+          "activeFrom": {
+            "type": "string",
+            "description": "Date when this overage period began tracking usage (UTC). Null if no usage has been recorded yet.",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageResponse": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "assetNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "billingCycles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageBillingCycle"
+            },
+            "nullable": true
+          },
+          "servicePlan": {
+            "$ref": "#/components/schemas/DataServicePlan"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataUsageResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/DataUsageResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureAccess": {
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "type": "integer",
+        "format": "int32",
+        "x-enumNames": [
+          "DeviceTelemetry",
+          "DeviceCommand",
+          "Financial",
+          "UserManagement",
+          "AccountInformation",
+          "OutageHistory",
+          "SupportRequest",
+          "DeviceManagement",
+          "ServicePlan",
+          "UserViewership",
+          "ServiceAccountManagement",
+          "DataSharingPreferenceManagement",
+          "DeviceConfigurationAssignment",
+          "AviationFlightStatusManagement",
+          "AdminOnlyUserManagementViaAPI",
+          "ManagedAccountCreation",
+          "ManagedAccountsInventoryManagement"
+        ]
+      },
+      "FeaturePermission": {
+        "required": [
+          "featureAccess",
+          "permission"
+        ],
+        "type": "object",
+        "properties": {
+          "featureAccess": {
+            "$ref": "#/components/schemas/FeatureAccess"
+          },
+          "permission": {
+            "$ref": "#/components/schemas/Permission"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OptInPeriodResponse": {
+        "required": [
+          "isCoolDown"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "activatedBySubjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "activatedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deactivatedBySubjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deactivatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isCoolDown": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OptInPeriodResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/OptInPeriodResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartialPeriodResponse": {
+        "type": "object",
+        "properties": {
+          "productReferenceId": {
+            "type": "string",
+            "description": "The unique product identifier"
+          },
+          "periodStart": {
+            "type": "string",
+            "description": "The timestamp of the start of the partial period",
+            "format": "date-time"
+          },
+          "periodEnd": {
+            "type": "string",
+            "description": "The timestamp of the end of the partial period",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartialPeriodResponseIEnumerableServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartialPeriodResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Permission": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "format": "int32",
+        "x-enumNames": [
+          "View",
+          "Edit"
+        ]
+      },
+      "PublicAddDataBlockRequest": {
+        "required": [
+          "count",
+          "productId"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Product Id for data blocks"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Quantity of the specified data block to add",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryBillingCycleRequest": {
+        "type": "object",
+        "properties": {
+          "serviceLinesFilter": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "previousBillingCycles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "queryStartDateParam": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeServiceLinesOnly": {
+            "type": "boolean"
+          },
+          "queryByBillingAccount": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterConfigRequest": {
+        "required": [
+          "routerConfigJson"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "Nickname",
+            "nullable": true
+          },
+          "routerConfigJson": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Router config json contents"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterConfigResponse": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "description": "Account Number this config is stored under. Empty for Starlink managed configs"
+          },
+          "configId": {
+            "type": "string",
+            "description": "Config Id."
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Nickname for this config. Must be less than 100 characters."
+          },
+          "routerConfigJson": {
+            "type": "string",
+            "description": "Config in JSON format."
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterConfigResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouterConfigResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterConfigResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/RouterConfigResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterConfigResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/RouterConfigResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterLocalContentResponseV1": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "Uploaded file name"
+          },
+          "uploadDate": {
+            "type": "string",
+            "description": "Upload timestamp",
+            "format": "date-time"
+          },
+          "fileContentId": {
+            "type": "string",
+            "description": "Id of uploaded local content file, used in router config HTTPS server"
+          },
+          "fileMD5Hash": {
+            "type": "string",
+            "description": "MD5 hash of the uploaded file used to verify integrity when router downloads the file for hosting. Used in router config HTTPS server"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterLocalContentResponseV1ListServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouterLocalContentResponseV1"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterResponse": {
+        "type": "object",
+        "properties": {
+          "routerId": {
+            "type": "string",
+            "description": "Router Id."
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Nickname of the router.",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Account Number this router is bonded to."
+          },
+          "userTerminalId": {
+            "type": "string",
+            "description": "User terminal Id this router is bonded to."
+          },
+          "configId": {
+            "type": "string",
+            "description": "Router config this router is assigned to, or empty if no config assigned.",
+            "nullable": true
+          },
+          "directLinkToDish": {
+            "type": "boolean",
+            "description": "True if this router is known to be directly connected to a user terminal."
+          },
+          "hardwareVersion": {
+            "type": "string",
+            "description": "Hardware version of the router: 'v1', 'v2', or 'v3'."
+          },
+          "lastBonded": {
+            "type": "string",
+            "description": "Last time the router bonded to a user terminal",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouterResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/RouterResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxHeartbeatRequest": {
+        "required": [
+          "healthy"
+        ],
+        "type": "object",
+        "properties": {
+          "healthy": {
+            "type": "boolean",
+            "description": "True if client systems are healthy, false otherwise."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineCreateRequest": {
+        "required": [
+          "addressReferenceId",
+          "productReferenceId"
+        ],
+        "type": "object",
+        "properties": {
+          "addressReferenceId": {
+            "type": "string",
+            "description": "Address Reference ID to associate with the service line. Example: 55ec6574-10d8-bd9c-1951-d4184f4ae467",
+            "format": "uuid"
+          },
+          "productReferenceId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Subscription Product ID to associate with the service line. Example: business-subscription-100"
+          },
+          "dataBlockProducts": {
+            "$ref": "#/components/schemas/SetRecurringDataBlocksRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineDataBlocksSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "recurringBlocksCurrentBillingCycle": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockSummaryResponse"
+            },
+            "description": "The current billing cycle's monthly recurring data blocks.",
+            "nullable": true
+          },
+          "recurringBlocksNextBillingCycle": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockSummaryResponse"
+            },
+            "description": "Next billing cycle's monthly recurring data blocks.",
+            "nullable": true
+          },
+          "delayedProductRecurringBlocksNextCycle": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockSummaryResponse"
+            },
+            "description": "What recurring blocks will be when the service line switches to the delayed product.",
+            "nullable": true
+          },
+          "topUpBlocksOptInPurchase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockSummaryResponse"
+            },
+            "description": "What top up blocks were automatically purchased because the service line was out of data and opted in.",
+            "nullable": true
+          },
+          "topUpBlocksOneTimePurchase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataBlockSummaryResponse"
+            },
+            "description": "What top up blocks were manually purchased.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineDataUsageForBillingCycles": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "description": "Account number that owns this service line."
+          },
+          "serviceLineNumber": {
+            "type": "string",
+            "description": "Service line number for which usage data is reported."
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date of the first billing cycle in the response (UTC).",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date of the last billing cycle in the response (UTC).",
+            "format": "date-time"
+          },
+          "billingCycles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataUsageBillingCycleV2"
+            },
+            "description": "Data usage grouped by billing cycle, ordered chronologically. The most recent cycle appears last in the array."
+          },
+          "servicePlan": {
+            "$ref": "#/components/schemas/DataServicePlan"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Timestamp when the usage data was last updated in the cache. Only present for cached data (typically yesterday and later).",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineDataUsageForBillingCyclesPaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceLineDataUsageForBillingCycles"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineDataUsageForBillingCyclesPaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/ServiceLineDataUsageForBillingCyclesPaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineResponse": {
+        "type": "object",
+        "properties": {
+          "addressReferenceId": {
+            "type": "string",
+            "description": "Address Reference ID of the address associated with the service line. Example: 55ec6574-10d8-bd9c-1951-d4184f4ae467",
+            "format": "uuid"
+          },
+          "serviceLineNumber": {
+            "type": "string",
+            "description": "The Service Line Number. Example: AST-511274-31364-54"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "A user-defined nickname for this service line.",
+            "nullable": true
+          },
+          "productReferenceId": {
+            "type": "string",
+            "description": "The unique product identifier."
+          },
+          "delayedProductId": {
+            "type": "string",
+            "description": "Scheduled product change for next bill date.",
+            "nullable": true
+          },
+          "optInProductId": {
+            "type": "string",
+            "description": "Opt-in product id, opted out if empty.",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "description": "The start date of the subscription. This is in UTC.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "description": "The service line deactivation date, which only appears if the service line is deactivated. This is in UTC.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "publicIp": {
+            "type": "boolean",
+            "description": "Indicates if service line is public IP."
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Indicates if service line is active."
+          },
+          "aviationMetadata": {
+            "$ref": "#/components/schemas/AviationMetadataResponse"
+          },
+          "dataBlocks": {
+            "$ref": "#/components/schemas/ServiceLineDataBlocksSummaryResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceLineResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/ServiceLineResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/ServiceLineResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineSetPublicIpRequest": {
+        "required": [
+          "publicIp"
+        ],
+        "type": "object",
+        "properties": {
+          "publicIp": {
+            "type": "boolean",
+            "description": "If public IP should be enabled or not"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceLineUpdateNicknameRequest": {
+        "required": [
+          "nickname"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "minLength": 1,
+            "type": "string",
+            "description": "New nickname for the existing service line."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRecurringDataBlocksRequest": {
+        "type": "object",
+        "properties": {
+          "recurringDataBlocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicAddDataBlockRequest"
+            },
+            "description": "Recurring data blocks to configure",
+            "nullable": true
+          },
+          "existingDataPoolId": {
+            "type": "string",
+            "description": "The ID of an existing data pool to which a new service line should be added. This field is mutually exclusive with RecurringDataBlocks and cannot be used together with it.",
+            "nullable": true
+          },
+          "applyToCurrentMonth": {
+            "type": "boolean",
+            "description": "Not yet supported. Reserved for future enhancements"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubscriptionProductResponse": {
+        "type": "object",
+        "properties": {
+          "productReferenceId": {
+            "type": "string",
+            "description": "The unique product identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the product"
+          },
+          "price": {
+            "type": "number",
+            "description": "Monthly price",
+            "format": "double"
+          },
+          "isoCurrencyCode": {
+            "type": "string",
+            "description": "Currency code for the price"
+          },
+          "isSla": {
+            "type": "boolean",
+            "description": "If Product Has SLA"
+          },
+          "maxNumberOfUserTerminals": {
+            "type": "integer",
+            "description": "The maximum number of user terminals that can be assigned to a single service line using this product. Null response means an unlimited number of UTs can be assigned.",
+            "format": "int32",
+            "nullable": true
+          },
+          "dataProducts": {
+            "$ref": "#/components/schemas/DataProductsResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubscriptionProductResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionProductResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubscriptionProductResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/SubscriptionProductResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBatchDeviceConfigRequest": {
+        "required": [
+          "deviceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "configId": {
+            "type": "string",
+            "description": "Config id (or none) to assign to specified devices",
+            "nullable": true
+          },
+          "deviceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "RouterIds or UserTerminalIds to immediately update."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBatchSandboxClientRequest": {
+        "required": [
+          "clientId",
+          "expiry",
+          "sandboxId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Identifier of the client to add or remove from a sandbox."
+          },
+          "sandboxId": {
+            "type": "integer",
+            "description": "Identifier used to separate sandbox environments. Per-client sandboxing is shared within the same SandboxId.",
+            "format": "int32"
+          },
+          "expiry": {
+            "type": "string",
+            "description": "Expiry of the sandbox state as a UTC date time.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateDefaultConfigRequest": {
+        "required": [
+          "configId"
+        ],
+        "type": "object",
+        "properties": {
+          "configId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "ConfigId or none to set as account default config. Use empty string to clear default config setting."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSandboxRequest": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "If sandboxed clients will be restricted to the sandbox domain allow list."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSandboxResponse": {
+        "required": [
+          "configIds"
+        ],
+        "type": "object",
+        "properties": {
+          "configIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of updated router configurations."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSandboxResponseServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/UpdateSandboxResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserLacksRequiredPermission": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiredPermission": {
+            "$ref": "#/components/schemas/FeaturePermission"
+          },
+          "featureAccessString": {
+            "type": "string",
+            "nullable": true
+          },
+          "permissionString": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserLacksRequiredPermissionServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/UserLacksRequiredPermission"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserTerminalResponse": {
+        "type": "object",
+        "properties": {
+          "userTerminalId": {
+            "type": "string",
+            "description": "User Terminal ID. This ID is not printed anywhere on the kit or hardware. Example: 00020900-002220cc-225b9199"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Nickname of the user terminal."
+          },
+          "kitSerialNumber": {
+            "type": "string",
+            "description": "Kit Serial Number. This ID can be found on the box that the hardware came in. Example: KIT00142069"
+          },
+          "dishSerialNumber": {
+            "type": "string",
+            "description": "Dish Serial Number. This ID can be found on the dish itself. Example: 2DHT00542069"
+          },
+          "serviceLineNumber": {
+            "type": "string",
+            "description": "The service line the user terminal is associated with if it has service, Example: AST-511274-31364-54",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Indicates if user terminal is active"
+          },
+          "routers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouterResponse"
+            },
+            "description": "Routers currently bonded to this UT"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserTerminalResponsePaginated": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLastPage": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserTerminalResponse"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserTerminalResponsePaginatedServiceResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationResult"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "information": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isValid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/UserTerminalResponsePaginated"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationResult": {
+        "type": "object",
+        "properties": {
+          "memberNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
