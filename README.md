@@ -147,6 +147,17 @@ $env:NUGET_SIGN_TIMESTAMP_URL = "https://<your-rfc3161-timestamp-server>"
 2. Зареєструвати цей сертифікат у `NuGet.org` → `Account settings` → `Certificates`.
 3. Публікувати нові версії вже підписаними тим самим сертифікатом.
 
+## Code signing policy
+
+Для підготовки до `SignPath Foundation` у репозиторії додано формальні policy-документи:
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+
+- [Code signing policy](./CODE_SIGNING_POLICY.md)
+- [Privacy policy](./PRIVACY.md)
+- [Contributing guide](./CONTRIBUTING.md)
+- [SignPath Foundation readiness checklist](./docs/SIGNPATH_FOUNDATION_READINESS.md)
+
 ## Джерело контракту
 
 Файл `swagger.json` збережений у репозиторії як reference snapshot офіційного Starlink Enterprise OpenAPI. Ручні моделі та endpoint-контракти синхронізовані з цим snapshot.
