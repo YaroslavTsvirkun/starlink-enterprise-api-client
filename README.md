@@ -93,6 +93,60 @@ dotnet test StarlinkEnterprise.ApiClient.slnx
 - `dotnet build` — успішно
 - `dotnet test` — успішно (`9/9`)
 
+## Цифровий підпис NuGet-пакета
+
+Для `nuget.org` релевантний саме авторський підпис пакета (`author signing`) сертифікатом `Code Signing`.
+
+Важливо:
+
+- `Strong Name` не заміняє підпис `NuGet`-пакета і не вирішує довіру до пакета на `nuget.org`.
+- `nuget.org` не приймає self-signed сертифікати для авторського підпису.
+- опубліковану версію `0.1.0` замінити підписаним пакетом не можна, тому перший підписаний реліз має виходити новою версією, наприклад `0.1.1`.
+
+У репозиторії вже підготовлено локальний і CI workflow для підпису:
+
+- локальний скрипт: `build/Publish-NuGet.ps1`
+- GitHub Actions: `.github/workflows/publish-nuget.yml`
+
+### Локальний підпис і публікація
+
+Потрібні змінні середовища:
+
+- `NUGET_API_KEY`
+- `NUGET_SIGN_CERT_PATH` або `NUGET_SIGN_CERT_FINGERPRINT` або `NUGET_SIGN_CERT_SUBJECT_NAME`
+- `NUGET_SIGN_CERT_PASSWORD` якщо сертифікат захищений паролем
+- `NUGET_SIGN_TIMESTAMP_URL`
+
+Приклад:
+
+```powershell
+$env:NUGET_API_KEY = "<nuget-api-key>"
+$env:NUGET_SIGN_CERT_PATH = "C:\certs\nuget-signing.pfx"
+$env:NUGET_SIGN_CERT_PASSWORD = "<pfx-password>"
+$env:NUGET_SIGN_TIMESTAMP_URL = "https://<your-rfc3161-timestamp-server>"
+
+./build/Publish-NuGet.ps1 -Version 0.1.1
+```
+
+### GitHub Actions secrets
+
+Для CI потрібно додати secrets:
+
+- `NUGET_API_KEY`
+- `NUGET_SIGN_CERT_BASE64`
+- `NUGET_SIGN_CERT_PASSWORD`
+- `NUGET_SIGN_TIMESTAMP_URL`
+
+`NUGET_SIGN_CERT_BASE64` — це вміст `.pfx`, закодований у Base64.
+
+### Реєстрація сертифіката в NuGet.org
+
+Перед публікацією signed package потрібно:
+
+1. Експортувати публічну частину сертифіката у `.cer` (DER).
+2. Зареєструвати цей сертифікат у `NuGet.org` → `Account settings` → `Certificates`.
+3. Публікувати нові версії вже підписаними тим самим сертифікатом.
+
 ## Джерело контракту
 
 Файл `swagger.json` збережений у репозиторії як reference snapshot офіційного Starlink Enterprise OpenAPI. Ручні моделі та endpoint-контракти синхронізовані з цим snapshot.

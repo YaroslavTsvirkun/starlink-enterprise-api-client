@@ -20,3 +20,10 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Signing materials
+*.pfx
+*.p12
+*.snk
+*.cer
+*.crt
