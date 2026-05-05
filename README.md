@@ -99,4 +99,4 @@ dotnet test StarlinkEnterprise.ApiClient.slnx
 
 ## Ліцензія
 
-Проєкт ліцензований під `MIT`. Деталі в [LICENSE](./LICENSE).
+Проєкт ліцензований під `MIT`. Текст ліцензії: [LICENSE](https://github.com/YaroslavTsvirkun/starlink-enterprise-api-client/blob/main/LICENSE).
