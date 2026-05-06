@@ -13,7 +13,9 @@ This document tracks repository-side readiness for an application to `SignPath F
 - [x] Formal [Privacy policy](../PRIVACY.md)
 - [x] Contribution and review guidance in [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [x] `CODEOWNERS` file prepared
-- [ ] Branch protection enabled on `main`
+- [x] Branch protection enabled on `main`
+- [x] Pull request CI workflow for build and test
+- [ ] Required status checks enforced on `main`
 - [ ] Required pull request reviews enforced on `main`
 - [ ] MFA confirmed for every maintainer involved in releases
 - [ ] SignPath Foundation application submitted
@@ -24,7 +26,7 @@ This document tracks repository-side readiness for an application to `SignPath F
 
 ## Manual actions still required outside the repository
 
-1. Enable GitHub branch protection on `main`.
+1. Mark the `CI / build-and-test` GitHub Actions check as required for `main`.
 2. Require pull request reviews for changes merged into `main`.
 3. Confirm MFA on GitHub for every maintainer who can approve or publish releases.
 4. Apply to SignPath Foundation and provide the repository URL, package URL, and release history.
